@@ -6,7 +6,7 @@ try {
 //    $db = new PDO($dsn, 'docker', 'docker');
 //    $db = new PDO($dsn, 'root', 'root');
     $db= new PDO("sqlsrv:Server=phpaspmssql_mssql_1;Database=DEMO", "sa", "56CFUVzh");
-//    $sql = "SELECT * FROM test_table";
+    $sql = "SELECT * FROM test_table";
     $sql = "SHOW TABLES";
     $stmt = $db->prepare($sql);
     $stmt->execute();
