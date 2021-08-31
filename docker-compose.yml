@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  # PHP
+  php-app:
+    image: namoshek/php-mssql:7.4-cli
+    container_name: php
+#    build:
+#      context: ./docker/php
+#      dockerfile: Dockerfile
+    tty: true
+    volumes:
+      - ./docker/php/test:/var/www/html
+    ports:
+      - "8080:80"
+    network_mode: "sample-network5"
+
+  # .NET5
+  dotnet:
+    container_name: dotnet
+    build:
+      context: ./docker/dotnet/src
+#      context: ./docker/dotnet/src_docker
+      dockerfile: DB_Ope_API/Dockerfile
+#      dockerfile: DockerTestApi210818/Dockerfile
+    tty: true
+    volumes:
+      - ./docker/dotnet/src:/src
+#      - ./docker/dotnet/src_docker:/src
+    ports:
+      - "8081:80"
+      - "44301:443"
+    network_mode: "sample-network5"
+
+  # SQL Server
+  mssql:
+    build:
+      context: ./docker/mssqlserver/
+    image: mssql
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=56CFUVzh # パスワードポリシー(https://docs.microsoft.com/ja-jp/sql/relational-databases/security/password-policy?view=sql-server-ver15)
+      - MSSQL_PID=Express # SQL Serverのエディションまたはプロダクトキー
+      - MSSQL_LCID=1041 # ロケールID 日本語 (https://www.ryadel.com/en/microsoft-windows-lcid-list-decimal-and-hex-all-locale-codes-ids/)
+      - MSSQL_COLLATION=Japanese_CI_AS # 照合順
+      - DB_NAME=DEMO # 初回起動時のDB存在判定のために使用します。
+    volumes:
+      - ./docker/mssqlserver/initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/mssqlserver/data:/var/opt/mssql/data
+      - ./docker/mssqlserver/log:/var/opt/mssql/log
+      - ./docker/mssqlserver/secrets:/var/opt/mssql/sec
+networks:
+  sample-network5:
